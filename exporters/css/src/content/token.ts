@@ -32,27 +32,82 @@ export function convertedToken(
   collections: Array<DesignSystemCollection> = []
 ): string {
   // Generate the CSS variable name based on token properties and configuration
-  const name = tokenVariableName(token, tokenGroups, collections)
+  let name = tokenVariableName(token, tokenGroups, collections)
+
+  // custom token type handling for saint gobain
+  if (token.tokenType === TokenType.borderWidth) {
+    name = name.startsWith('border-width-') ? name.substring(12) : name
+  }
+    
+  if (token.tokenType === TokenType.fontSize) {
+    name = name.startsWith('font-size-') ? name.substring(10) : name
+  }
+  if (token.tokenType === TokenType.letterSpacing) {
+    name = name.startsWith('letter-spacing-') ? name.substring(15) : name
+  }
+  if (token.tokenType === TokenType.lineHeight) {
+    name = name.startsWith('line-height-') ? name.substring(12) : name
+  }
+  if (token.tokenType === TokenType.radius) {
+    name = name.startsWith('border-radius-') ? name.substring(14) : name
+  }
+  if (token.tokenType === TokenType.size) {
+    name = name.startsWith('sizing-') ? name.substring(7) : name
+  }
+  if (token.tokenType === TokenType.space) {
+    name = name.startsWith('spacing-') ? name.substring(8) : name
+  }
+
+  if (token.tokenType === TokenType.fontFamily) {
+    name = name.startsWith('font-family-') ? name.substring(12) : name
+  }
+    
+  if (token.tokenType === TokenType.fontWeight) {
+    name = name.startsWith('font-weight-') ? name.substring(12) : name
+   }
+
 
   // Convert token value to CSS, handling references and formatting according to configuration
-  const value = CSSHelper.tokenToCSS(token, mappedTokens, {
+  let value = CSSHelper.tokenToCSS(token, mappedTokens, {
     allowReferences: exportConfiguration.useReferences,
     decimals: exportConfiguration.colorPrecision,
     colorFormat: exportConfiguration.colorFormat,
     forceRemUnit: exportConfiguration.forceRemUnit,
     remBase: exportConfiguration.remBase,
     // Custom handler for token references - converts them to CSS var() syntax
-    tokenToVariableRef: (t) => {
-      return `var(--${tokenVariableName(t, tokenGroups, collections)})`
+    tokenToVariableRef: (t) => { 
+      let nameVal = tokenVariableName(t, tokenGroups) 
+        nameVal = nameVal.startsWith('border-width-') ? nameVal.substring(12) : nameVal 
+        nameVal = nameVal.startsWith('font-size-') ? nameVal.substring(10) : nameVal  
+        nameVal = nameVal.startsWith('letter-spacing-') ? nameVal.substring(15) : nameVal  
+        nameVal = nameVal.startsWith('line-height-') ? nameVal.substring(12) : nameVal  
+        nameVal = nameVal.startsWith('border-radius-') ? nameVal.substring(14) : nameVal  
+        nameVal = nameVal.startsWith('sizing-') ? nameVal.substring(7) : nameVal  
+        nameVal = nameVal.startsWith('spacing-') ? nameVal.substring(8) : nameVal   
+        nameVal = nameVal.startsWith('font-family-') ? nameVal.substring(12) : nameVal 
+        nameVal = nameVal.startsWith('font-weight-') ? nameVal.substring(12) : nameVal 
+      return `var(--${nameVal})`
+     
     },
   })
+
+// Custom handler for font weights
+if (token.tokenType === TokenType.fontWeight && typeof value === 'string') {
+  // Remove all quotes and attempt to parse as number
+  const numericValue = parseFloat(value.replace(/"/g, ''));
+  // Only use numeric value if it's a valid number and not NaN
+  if (!isNaN(numericValue) && isFinite(numericValue)) {
+    value = numericValue.toString(); // Convert back to string to maintain type consistency
+  }
+}
+
   const indentString = GeneralHelper.indent(exportConfiguration.indent)
 
   // Add description comment if enabled and description exists
   if (exportConfiguration.showDescriptions && token.description) {
     return `${indentString}/* ${token.description.trim()} */\n${indentString}--${name}: ${value};`
   } else {
-    return `${indentString}--${name}: ${value};`
+    return `${indentString}-- ${name}: ${value};` 
   }
 }
 
