@@ -86,7 +86,7 @@ export function convertedToken(
         nameVal = nameVal.startsWith('spacing-') ? nameVal.substring(8) : nameVal   
         nameVal = nameVal.startsWith('font-family-') ? nameVal.substring(12) : nameVal 
         nameVal = nameVal.startsWith('font-weight-') ? nameVal.substring(12) : nameVal 
-      return `var(--${nameVal})`
+      return `var(--${nameVal}) test`
      
     },
   })
