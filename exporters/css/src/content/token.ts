@@ -107,7 +107,7 @@ if (token.tokenType === TokenType.fontWeight && typeof value === 'string') {
   if (exportConfiguration.showDescriptions && token.description) {
     return `${indentString}/* ${token.description.trim()} */\n${indentString}--${name}: ${value};`
   } else {
-    return `${indentString}-- ${name}: ${value};` 
+    return `${indentString}-- ${name} test: ${value};` 
   }
 }
 
